@@ -536,16 +536,3 @@ QUERY countUserMemories(user_id: String) =>
   user <- N<User>::WHERE(_::{user_id}::EQ(user_id))::FIRST
   count <- user::Out<HAS_MEMORY>::COUNT
   RETURN count
-
-QUERY smartVectorSearch(query_vector: [F64], limit: I64) =>
-  embeddings <- SearchV<MemoryEmbedding>(query_vector, limit)
-  memories <- embeddings::In<HAS_EMBEDDING>
-  RETURN memories
-
-QUERY smartVectorSearchWithChunks(query_vector: [F64], limit: I64) =>
-  embeddings <- SearchV<MemoryEmbedding>(query_vector, limit)
-  memories <- embeddings::In<HAS_EMBEDDING>
-  chunks <- embeddings::In<CHUNK_HAS_EMBEDDING>
-  parent_memories <- chunks::In<HAS_CHUNK>
-  RETURN memories, chunks, parent_memories
-

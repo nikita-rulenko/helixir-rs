@@ -20,22 +20,11 @@ pub enum TraversalError {
 
 
 #[derive(Debug, Deserialize, Default)]
-struct EmbeddingSearchResponse {
+struct VectorSearchResponse {
     #[serde(default)]
-    embeddings: Vec<EmbeddingResult>,
-}
-
-#[derive(Debug, Deserialize)]
-struct EmbeddingResult {
-    id: String,
+    memories: Vec<VectorMemory>,
     #[serde(default)]
-    label: String,
-}
-
-#[derive(Debug, Deserialize, Default)]
-struct MemoryByEmbeddingResponse {
-    #[serde(default)]
-    memory: Vec<VectorMemory>,
+    chunks: Vec<serde_json::Value>,
 }
 
 #[derive(Debug, Deserialize, Clone)]
@@ -103,56 +92,40 @@ pub async fn vector_search_phase(
     
     let _ = (user_id, min_score); 
 
-    let embedding_response: EmbeddingSearchResponse = client
-        .execute_query("searchSimilarMemories", &params)
+    let response: VectorSearchResponse = client
+        .execute_query("smartVectorSearchWithChunks", &params)
         .await
         .map_err(|e| TraversalError::Database(e.to_string()))?;
 
     let mut results = Vec::new();
     let mut seen_ids = HashSet::new();
 
-    for embedding in embedding_response.embeddings {
-        let memory_response: MemoryByEmbeddingResponse = match client
-            .execute_query(
-                "getMemoryByEmbeddingId",
-                &serde_json::json!({"embedding_id": embedding.id}),
-            )
-            .await
-        {
-            Ok(r) => r,
-            Err(e) => {
-                debug!("Failed to get memory for embedding {}: {}", embedding.id, e);
-                continue;
-            }
-        };
+    for memory in response.memories {
+        if seen_ids.contains(&memory.memory_id) {
+            continue;
+        }
+        seen_ids.insert(memory.memory_id.clone());
 
-        for memory in memory_response.memory {
-            if seen_ids.contains(&memory.memory_id) {
-                continue;
-            }
-            seen_ids.insert(memory.memory_id.clone());
-
-            if let Some(cutoff) = &temporal_cutoff {
-                if let Ok(created_at) = DateTime::parse_from_rfc3339(&memory.created_at) {
-                    if created_at.with_timezone(&Utc) < *cutoff {
-                        continue;
-                    }
+        if let Some(cutoff) = &temporal_cutoff {
+            if let Ok(created_at) = DateTime::parse_from_rfc3339(&memory.created_at) {
+                if created_at.with_timezone(&Utc) < *cutoff {
+                    continue;
                 }
             }
+        }
 
-            let temporal_score = calculate_temporal_freshness(&memory.created_at, 30.0);
-            
-            let mut result = SearchResult::from_vector(
-                &memory.memory_id,
-                &memory.content,
-                0.8,
-                temporal_score,
-            );
-            result.created_at = Some(memory.created_at.clone());
+        let temporal_score = calculate_temporal_freshness(&memory.created_at, 30.0);
+        
+        let mut result = SearchResult::from_vector(
+            &memory.memory_id,
+            &memory.content,
+            0.8,
+            temporal_score,
+        );
+        result.created_at = Some(memory.created_at.clone());
 
-            if result.combined_score >= min_score {
-                results.push(result);
-            }
+        if result.combined_score >= min_score {
+            results.push(result);
         }
     }
 
