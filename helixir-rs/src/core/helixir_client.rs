@@ -241,7 +241,7 @@ impl HelixirClient {
                 content: r.content,
                 score: r.score as f32,
                 metadata: r.metadata,
-                created_at: String::new(),
+                created_at: r.created_at,
             })
             .collect())
     }
@@ -331,7 +331,7 @@ impl HelixirClient {
             content: r.content,
             score: r.score as f32,
             metadata: r.metadata,
-            created_at: String::new(),
+            created_at: r.created_at,
         }).collect())
     }
 
@@ -358,7 +358,7 @@ impl HelixirClient {
                 content: tc.seed.content,
                 score: tc.seed.score as f32,
                 metadata: tc.seed.metadata,
-                created_at: String::new(),
+                created_at: tc.seed.created_at,
             },
             nodes: tc.nodes.into_iter().map(|n| ChainNode {
                 memory_id: n.memory_id,

@@ -96,6 +96,7 @@ impl HybridSearch {
                 metadata: method_meta.into_iter()
                     .map(|(k, v)| (k, serde_json::json!(v)))
                     .collect(),
+                created_at: String::new(),
             })
             .collect();
 

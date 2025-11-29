@@ -46,6 +46,8 @@ pub struct ReasoningRelation {
     
     pub to_memory_id: String,
     
+    pub to_memory_content: String,
+    
     pub relation_type: ReasoningType,
     
     pub strength: i32,
@@ -171,6 +173,7 @@ impl ReasoningEngine {
             relation_id: format!("rel_{}_{}", crate::safe_truncate(from_id, 8), crate::safe_truncate(to_id, 8)),
             from_memory_id: from_id.to_string(),
             to_memory_id: to_id.to_string(),
+            to_memory_content: String::new(),
             relation_type,
             strength,
             reasoning_id: reasoning_id.map(String::from),
@@ -392,6 +395,7 @@ impl ReasoningEngine {
                     relation_id: format!("rel_{}_{}", &from_id, &to_id),
                     from_memory_id: from_id,
                     to_memory_id: to_id,
+                    to_memory_content: node.content.clone(),
                     relation_type,
                     strength: 80,
                     reasoning_id: None,
@@ -450,6 +454,7 @@ Output JSON array with relations: [{"from_id": "...", "to_id": "...", "type": "I
                                     ),
                                     from_memory_id: r.get("from_id")?.as_str()?.to_string(),
                                     to_memory_id: r.get("to_id")?.as_str()?.to_string(),
+                                    to_memory_content: String::new(),
                                     relation_type: match r.get("type")?.as_str()? {
                                         "IMPLIES" => ReasoningType::Implies,
                                         "BECAUSE" => ReasoningType::Because,

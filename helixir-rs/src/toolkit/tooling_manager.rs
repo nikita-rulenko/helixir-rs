@@ -43,6 +43,7 @@ pub struct SearchMemoryResult {
     pub score: f64,
     pub method: String,
     pub metadata: HashMap<String, serde_json::Value>,
+    pub created_at: String,
 }
 
 
@@ -747,6 +748,7 @@ impl ToolingManager {
                 score: r.score as f64,
                 method: r.method,
                 metadata: r.metadata,
+                created_at: r.created_at,
             })
             .collect())
     }
@@ -1113,12 +1115,13 @@ impl ToolingManager {
                                 score: seed.score as f64,
                                 method: seed.method.clone(),
                                 metadata: seed.metadata.clone(),
+                                created_at: seed.created_at.clone(),
                             },
                             nodes: chain.relations.iter().map(|r| ChainNode {
                                 memory_id: r.to_memory_id.clone(),
-                                content: String::new(), 
+                                content: r.to_memory_content.clone(),
                                 relation: r.relation_type.edge_name().to_string(),
-                                depth: 0, 
+                                depth: 0,
                             }).collect(),
                             chain_type: chain.chain_type.clone(),
                             reasoning_trail: chain.reasoning_trail.clone(),
@@ -1242,6 +1245,7 @@ impl ToolingManager {
                         score: candidate.score as f64,
                         method: format!("concept_search_{}", mode),
                         metadata: candidate.metadata,
+                        created_at: candidate.created_at,
                     });
 
                     if results.len() >= limit {

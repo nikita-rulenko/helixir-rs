@@ -85,6 +85,7 @@ pub struct UnifiedSearchResult {
     pub score: f32,
     pub method: String,
     pub metadata: HashMap<String, serde_json::Value>,
+    pub created_at: String,
 }
 
 pub struct SearchEngine {
@@ -167,6 +168,7 @@ impl SearchEngine {
                             score: r.combined_score as f32,
                             method: format!("smart_v2_{}", mode),
                             metadata: r.metadata.unwrap_or_default(),
+                            created_at: r.created_at.unwrap_or_default(),
                         })
                         .collect()
                 } else {
@@ -201,6 +203,7 @@ impl SearchEngine {
                             score: r.combined_score as f32,
                             method: "smart_v2_deep".to_string(),
                             metadata: r.metadata.unwrap_or_default(),
+                            created_at: r.created_at.unwrap_or_default(),
                         })
                         .collect()
                 } else {
@@ -231,6 +234,7 @@ impl SearchEngine {
                             score: r.combined_score as f32,
                             method: "smart_v2_full".to_string(),
                             metadata: r.metadata.unwrap_or_default(),
+                            created_at: r.created_at.unwrap_or_default(),
                         })
                         .collect()
                 } else {
@@ -268,6 +272,7 @@ impl SearchEngine {
                 score: r.score as f32,
                 method: "vector".to_string(),
                 metadata: r.metadata,
+                created_at: r.created_at,
             })
             .collect())
     }

@@ -30,6 +30,7 @@ pub struct SearchResult {
     pub score: f64,
     pub method: SearchMethod,
     pub metadata: HashMap<String, serde_json::Value>,
+    pub created_at: String,
 }
 
 impl fmt::Display for SearchResult {

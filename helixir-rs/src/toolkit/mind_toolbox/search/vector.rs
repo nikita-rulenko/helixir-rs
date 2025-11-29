@@ -104,6 +104,7 @@ impl VectorSearch {
                 score: item.similarity_score,
                 method: SearchMethod::Vector,
                 metadata,
+                created_at: item.created_at.clone(),
             };
             results.push(search_result);
         }

@@ -97,6 +97,7 @@ impl Bm25Search {
                         score,
                         method: SearchMethod::Bm25,
                         metadata: HashMap::new(),
+                        created_at: String::new(),
                     })
                 } else {
                     None

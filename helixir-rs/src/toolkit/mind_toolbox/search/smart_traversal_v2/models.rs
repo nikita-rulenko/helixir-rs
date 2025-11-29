@@ -52,6 +52,9 @@ pub struct SearchResult {
     
     #[serde(skip_serializing_if = "Option::is_none")]
     pub metadata: Option<HashMap<String, serde_json::Value>>,
+    
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub created_at: Option<String>,
 }
 
 impl SearchResult {
@@ -74,6 +77,7 @@ impl SearchResult {
             source: "vector".to_string(),
             edge_path: None,
             metadata: None,
+            created_at: None,
         }
     }
 
@@ -100,6 +104,7 @@ impl SearchResult {
             source: "graph".to_string(),
             edge_path: Some(edge_path),
             metadata: None,
+            created_at: None,
         }
     }
 
